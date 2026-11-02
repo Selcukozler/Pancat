@@ -15,7 +15,7 @@ public class Pancake : MonoBehaviour
             rb.useGravity = false;
         }
 
-        // Eğer modelin kendi Animator'ı varsa pozisyonu kilitlemesini engelle
+        // Modelin kendi animasyonu varsa pozisyonu kilitlemesini engelle
         Animator anim = GetComponentInChildren<Animator>();
         if (anim != null)
         {
@@ -38,8 +38,7 @@ public class Pancake : MonoBehaviour
 
     public void SetSelectedVisual(bool selected)
     {
-        transform.position = selected 
-            ? stackPosition + new Vector3(0f, 0.15f, -0.4f) 
-            : stackPosition;
+        // Seçilen pankek sabit kalır, yerinden oynamaz
+        transform.position = stackPosition;
     }
 }

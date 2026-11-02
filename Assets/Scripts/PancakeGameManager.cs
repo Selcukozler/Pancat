@@ -8,11 +8,16 @@ public class PancakeGameManager : MonoBehaviour
     [Header("Referanslar")]
     public Pancake pancakePrefab;
     public Transform plateTransform;
+    public Transform spatulaTransform;
+
+    [Header("Spatula Hedef Konum Ayarları")]
+    [Tooltip("Pankek seçildiğinde spatulanın pankekin altında duracağı göreceli mesafe")]
+    public Vector3 spatulaActiveOffset = new Vector3(0f, -0.05f, -0.8f);
 
     [Header("Seviye ve Değme Ayarları")]
     public int currentLevel = 1;
-    [Tooltip("Pankeklerin birbirine ne kadar sıkı değeceği (1.0 = Tam değer, 0.85 = Hafif iç içe/yumuşak oturur)")]
-    public float contactMultiplier = 0.88f; 
+    [Tooltip("Pankeklerin birbirine ne kadar sıkı değeceği (0.85 = Tam oturur)")]
+    public float contactMultiplier = 0.85f;
     [Tooltip("En alttaki pankekin tabağa değme yüksekliği")]
     public float plateSurfaceOffset = 0.08f;
 
@@ -21,11 +26,9 @@ public class PancakeGameManager : MonoBehaviour
     public float scaleStep = 0.28f;
     public float thicknessY = 0.85f;
 
-    [Header("Oyun Modu ve Animasyon")]
-    [Tooltip("İşaretliyse: Tıklanan pankekten en üste kadar olan grup takla atarak ters döner (Klasik Pancake Sort).\nİşaretli değilse: Seçilen 2 pankek yer değiştirir.")]
-    public bool realPancakeSortMode = false;
-    public float flipDuration = 0.45f;
-    public float arcWidth = 1.5f;
+    [Header("Animasyon Ayarları")]
+    public float flipDuration = 0.5f;
+    public float arcWidth = 1.2f;
 
     private List<Pancake> stack = new List<Pancake>();
     private Pancake firstSelected = null;
@@ -34,12 +37,38 @@ public class PancakeGameManager : MonoBehaviour
     private int moveCount = 0;
     private float measuredPancakeHeight = 0.35f;
 
+    // Spatulanın sahnede Inspector'da bıraktığın orijinal başlangıç konum ve açısı
+    private Vector3 spatulaRestPosition;
+    private Quaternion spatulaRestRotation;
+
     void Start()
     {
         if (plateTransform == null)
         {
             GameObject plateObj = GameObject.Find("Circle Plate 2");
             if (plateObj != null) plateTransform = plateObj.transform;
+        }
+
+        if (spatulaTransform == null)
+        {
+            GameObject spatObj = GameObject.Find("Spatula_01a");
+            if (spatObj != null) spatulaTransform = spatObj.transform;
+        }
+
+        // Spatulanın sahnede durduğu ilk konum ve açısını otomatik olarak hafızaya al
+        if (spatulaTransform != null)
+        {
+            spatulaRestPosition = spatulaTransform.position;
+            spatulaRestRotation = spatulaTransform.rotation;
+
+            Collider[] cols = spatulaTransform.GetComponentsInChildren<Collider>();
+            foreach (var c in cols) c.enabled = false;
+        }
+
+        Pancake[] existing = FindObjectsByType<Pancake>(FindObjectsSortMode.None);
+        foreach (var p in existing)
+        {
+            Destroy(p.gameObject);
         }
 
         StartLevel(currentLevel);
@@ -81,7 +110,6 @@ public class PancakeGameManager : MonoBehaviour
         moveCount = 0;
         showLevelCompleteUI = false;
 
-        // Level 1 = 3 Pankek, Level 2 = 4 Pankek, Level 3 = 5 Pankek...
         int pancakeCount = level + 2;
 
         List<int> sizes = new List<int>();
@@ -90,7 +118,6 @@ public class PancakeGameManager : MonoBehaviour
             sizes.Add(i);
         }
 
-        // Zaten sıralı gelmeyecek şekilde karıştır
         do
         {
             for (int i = 0; i < sizes.Count; i++)
@@ -108,7 +135,6 @@ public class PancakeGameManager : MonoBehaviour
             float currentScaleXZ = minScale + ((sizes[i] - 1) * scaleStep);
             newPancake.Setup(sizes[i], currentScaleXZ, thicknessY);
 
-            // İlk pankekin gerçek 3D yüksekliğini ölç (birbirine tam değmeleri için)
             if (i == 0)
             {
                 Renderer rend = newPancake.GetComponentInChildren<Renderer>();
@@ -122,104 +148,87 @@ public class PancakeGameManager : MonoBehaviour
         }
 
         RefreshPositions();
+        ResetSpatulaToRest();
+    }
+
+    void ResetSpatulaToRest()
+    {
+        if (spatulaTransform != null)
+        {
+            // Spatula tabağın yeni konumuna göre ayarladığın ilk yerine geri döner
+            spatulaTransform.position = spatulaRestPosition;
+            spatulaTransform.rotation = spatulaRestRotation;
+        }
     }
 
     void OnPancakeClicked(Pancake clicked)
     {
-        if (realPancakeSortMode)
+        if (firstSelected == null)
         {
-            int index = stack.IndexOf(clicked);
-            if (index >= 0 && index < stack.Count - 1)
+            firstSelected = clicked;
+            // Spatula ilk konumundan kalkıp seçilen pankekin altına kayarak gelir
+            if (spatulaTransform != null)
             {
-                moveCount++;
-                StartCoroutine(AnimatePancakeFlipGroup(index));
+                StartCoroutine(AnimateSpatulaMove(spatulaRestPosition, clicked.stackPosition + spatulaActiveOffset, 0.2f));
             }
+        }
+        else if (firstSelected == clicked)
+        {
+            firstSelected = null;
+            ResetSpatulaToRest();
         }
         else
         {
-            if (firstSelected == null)
-            {
-                firstSelected = clicked;
-                firstSelected.SetSelectedVisual(true);
-            }
-            else if (firstSelected == clicked)
-            {
-                firstSelected.SetSelectedVisual(false);
-                firstSelected = null;
-            }
-            else
-            {
-                moveCount++;
-                StartCoroutine(AnimateSwapTwoFlip(firstSelected, clicked));
-                firstSelected = null;
-            }
+            int indexA = stack.IndexOf(firstSelected);
+            int indexB = stack.IndexOf(clicked);
+
+            int startIndex = Mathf.Min(indexA, indexB);
+            int endIndex = Mathf.Max(indexA, indexB);
+
+            firstSelected = null;
+            moveCount++;
+
+            StartCoroutine(AnimateFlipRangeRoutine(startIndex, endIndex));
         }
     }
 
-    // Seçilen 2 pankekin takla atarak yer değiştirmesi
-    IEnumerator AnimateSwapTwoFlip(Pancake pancakeA, Pancake pancakeB)
+    IEnumerator AnimateSpatulaMove(Vector3 startPos, Vector3 endPos, float duration)
     {
-        isBusy = true;
-
-        pancakeA.SetSelectedVisual(false);
-        pancakeB.SetSelectedVisual(false);
-
-        int indexA = stack.IndexOf(pancakeA);
-        int indexB = stack.IndexOf(pancakeB);
-
-        Vector3 posA = GetSlotPosition(indexA);
-        Vector3 posB = GetSlotPosition(indexB);
-
         float elapsed = 0f;
-        while (elapsed < flipDuration)
+        while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / flipDuration);
-            float smoothT = Mathf.SmoothStep(0f, 1f, t);
-
-            float arcOffset = Mathf.Sin(smoothT * Mathf.PI) * arcWidth;
-
-            Vector3 currentPosA = Vector3.Lerp(posA, posB, smoothT);
-            currentPosA.x += arcOffset;
-
-            Vector3 currentPosB = Vector3.Lerp(posB, posA, smoothT);
-            currentPosB.x -= arcOffset;
-
-            pancakeA.transform.position = currentPosA;
-            pancakeB.transform.position = currentPosB;
-
-            float flipAngle = smoothT * 360f;
-            pancakeA.transform.rotation = Quaternion.Euler(0f, 0f, -flipAngle);
-            pancakeB.transform.rotation = Quaternion.Euler(0f, 0f, flipAngle);
-
+            float t = Mathf.Clamp01(elapsed / duration);
+            if (spatulaTransform != null)
+            {
+                spatulaTransform.position = Vector3.Lerp(startPos, endPos, Mathf.SmoothStep(0f, 1f, t));
+                spatulaTransform.rotation = spatulaRestRotation;
+            }
             yield return null;
         }
-
-        stack[indexA] = pancakeB;
-        stack[indexB] = pancakeA;
-
-        RefreshPositions();
-
-        yield return CheckWinRoutine();
-        isBusy = false;
     }
 
-    // Klasik Pancake Sort: Seçilen indexten en üste kadar olan grubu ters çevirir
-    IEnumerator AnimatePancakeFlipGroup(int startIndex)
+    IEnumerator AnimateFlipRangeRoutine(int startIndex, int endIndex)
     {
         isBusy = true;
 
-        int topIndex = stack.Count - 1;
-        int count = stack.Count - startIndex;
+        int count = (endIndex - startIndex) + 1;
 
         Vector3 bottomPos = GetSlotPosition(startIndex);
-        Vector3 topPos = GetSlotPosition(topIndex);
+        Vector3 topPos = GetSlotPosition(endIndex);
         Vector3 centerPivot = (bottomPos + topPos) * 0.5f;
 
-        GameObject pivotObj = new GameObject("FlipPivot");
+        Vector3 targetSpatulaPos = bottomPos + spatulaActiveOffset;
+        if (spatulaTransform != null)
+        {
+            spatulaTransform.position = targetSpatulaPos;
+            spatulaTransform.rotation = spatulaRestRotation;
+        }
+
+        GameObject pivotObj = new GameObject("RangeFlipPivot");
         pivotObj.transform.position = centerPivot;
 
-        for (int i = startIndex; i <= topIndex; i++)
+        for (int i = startIndex; i <= endIndex; i++)
         {
             stack[i].transform.SetParent(pivotObj.transform, true);
         }
@@ -231,23 +240,40 @@ public class PancakeGameManager : MonoBehaviour
             float t = Mathf.Clamp01(elapsed / flipDuration);
             float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
-            float heightBoost = Mathf.Sin(smoothT * Mathf.PI) * 0.8f;
-            pivotObj.transform.position = centerPivot + Vector3.up * heightBoost;
+            float sideOffset = -Mathf.Sin(smoothT * Mathf.PI) * arcWidth;
+            pivotObj.transform.position = centerPivot + new Vector3(sideOffset, 0f, 0f);
             pivotObj.transform.rotation = Quaternion.Euler(0f, 0f, smoothT * 180f);
 
-            for (int i = startIndex; i <= topIndex; i++)
+            for (int i = startIndex; i <= endIndex; i++)
             {
                 stack[i].transform.rotation = Quaternion.identity;
+            }
+
+            if (spatulaTransform != null)
+            {
+                float spatulaLift = Mathf.Sin(smoothT * Mathf.PI) * 0.3f;
+                spatulaTransform.position = targetSpatulaPos + new Vector3(sideOffset, spatulaLift, 0f);
+                spatulaTransform.rotation = spatulaRestRotation;
             }
 
             yield return null;
         }
 
-        for (int i = startIndex; i <= topIndex; i++)
+        for (int i = startIndex; i <= endIndex; i++)
         {
             stack[i].transform.SetParent(null, true);
         }
+
         Destroy(pivotObj);
+        
+        // Çevirme bittikten sonra spatula akıcı bir şekilde orijinal yerine geri döner
+        if (spatulaTransform != null)
+        {
+
+            yield return AnimateSpatulaMove(spatulaTransform.position, spatulaRestPosition, 0.25f);
+        }
+
+        ResetSpatulaToRest();
 
         stack.Reverse(startIndex, count);
         RefreshPositions();
@@ -261,7 +287,6 @@ public class PancakeGameManager : MonoBehaviour
         if (IsStackSorted())
         {
             showLevelCompleteUI = true;
-            // Seviye atlamadan önce oyuncunun dizilimi görmesi için 1.2 saniye bekle
             yield return new WaitForSeconds(1.2f);
             currentLevel++;
             StartLevel(currentLevel);
@@ -272,8 +297,8 @@ public class PancakeGameManager : MonoBehaviour
     {
         Vector3 basePos = plateTransform != null ? plateTransform.position : Vector3.zero;
         return new Vector3(
-            basePos.x, 
-            basePos.y + plateSurfaceOffset + (index * measuredPancakeHeight), 
+            basePos.x,
+            basePos.y + plateSurfaceOffset + (index * measuredPancakeHeight),
             basePos.z
         );
     }
@@ -297,7 +322,6 @@ public class PancakeGameManager : MonoBehaviour
 
     bool IsStackSorted()
     {
-        // En altta (index 0) en büyük pankek, en üstte en küçük pankek olmalı (Piramit dizilimi)
         for (int i = 0; i < stack.Count - 1; i++)
         {
             if (stack[i].sizeValue < stack[i + 1].sizeValue)
@@ -324,7 +348,7 @@ public class PancakeGameManager : MonoBehaviour
             winStyle.alignment = TextAnchor.MiddleCenter;
             winStyle.normal.textColor = Color.yellow;
 
-            GUI.Box(new Rect(Screen.width / 2f - 220, Screen.height / 2f - 50, 440, 100), 
+            GUI.Box(new Rect(Screen.width / 2f - 220, Screen.height / 2f - 50, 440, 100),
                 $"LEVEL {currentLevel} TAMAMLANDI!\nSonraki Seviye Yükleniyor...", winStyle);
         }
     }

@@ -206,7 +206,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -256,6 +256,11 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!4 &393964995 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+  m_PrefabInstance: {fileID: 1428469201}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -432,6 +437,80 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1332743782 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4931060261435429358, guid: deff23ad8ae42ee44b9c660a0ab8855c, type: 3}
+  m_PrefabInstance: {fileID: 1674522815}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1428469201
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.926
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.229
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -5.107
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.5890208
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.48769385
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.49632242
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.41094202
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -79.248
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 80.237
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
+      propertyPath: m_Name
+      value: Spatula_01a
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: edb15ff751e49d942bd104c46cbfbe2e, type: 3}
 --- !u!1001 &1674522815
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -446,27 +525,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4931060261435429358, guid: deff23ad8ae42ee44b9c660a0ab8855c, type: 3}
       propertyPath: m_LocalScale.x
-      value: 4.3411
+      value: 8.830233
       objectReference: {fileID: 0}
     - target: {fileID: 4931060261435429358, guid: deff23ad8ae42ee44b9c660a0ab8855c, type: 3}
       propertyPath: m_LocalScale.y
-      value: 4.3411
+      value: 8.830233
       objectReference: {fileID: 0}
     - target: {fileID: 4931060261435429358, guid: deff23ad8ae42ee44b9c660a0ab8855c, type: 3}
       propertyPath: m_LocalScale.z
-      value: 4.3411
+      value: 8.830233
       objectReference: {fileID: 0}
     - target: {fileID: 4931060261435429358, guid: deff23ad8ae42ee44b9c660a0ab8855c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.00059094
       objectReference: {fileID: 0}
     - target: {fileID: 4931060261435429358, guid: deff23ad8ae42ee44b9c660a0ab8855c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1
+      value: -0.99481
       objectReference: {fileID: 0}
     - target: {fileID: 4931060261435429358, guid: deff23ad8ae42ee44b9c660a0ab8855c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4
+      value: -3.855
       objectReference: {fileID: 0}
     - target: {fileID: 4931060261435429358, guid: deff23ad8ae42ee44b9c660a0ab8855c, type: 3}
       propertyPath: m_LocalRotation.w
@@ -531,15 +610,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PancakeGameManager
   pancakePrefab: {fileID: 3460838179849858572, guid: e613f0a9044e74e5eb6e7cfbeb41545c, type: 3}
-  plateTransform: {fileID: 0}
+  plateTransform: {fileID: 1332743782}
+  spatulaTransform: {fileID: 393964995}
+  spatulaOffset: {x: 1.2, y: -0.1, z: 0}
+  spatulaRestOffset: {x: 3, y: 0.5, z: 0}
   currentLevel: 1
   contactMultiplier: 0.88
   plateSurfaceOffset: 0.08
   minScale: 0.6
   scaleStep: 0.35
   thicknessY: 1
-  realPancakeSortMode: 1
-  flipDuration: 0.55
+  flipDuration: 0.45
   arcWidth: 1.5
 --- !u!4 &1723246184
 Transform:
@@ -565,3 +646,4 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 1674522815}
   - {fileID: 1723246184}
+  - {fileID: 1428469201}
